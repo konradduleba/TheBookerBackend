@@ -1,5 +1,5 @@
 export default interface IUserInformationInterface {
-    id: string;
+    id?: string;
     name: string;
     lastname: string;
     picture: string;

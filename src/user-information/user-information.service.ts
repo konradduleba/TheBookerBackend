@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { FirstPrivacyOptions } from 'src/privacy/Enums/PrivacyOptions.enum';
+import PrivacyInterface from 'src/privacy/Types/IPrivacyInteface';
 import { UserData } from 'src/user/userData.entity';
 import IAccountInfo from './Types/IAccountInfo';
 import IBasicInfo from './Types/IBasicInfo';
 import IChangeUserInformationInterface from './Types/IChangeUserInformationInterface';
 import IContactInfo from './Types/IContactInfo';
+import IGetOtherUserInfo from './Types/IGetOtherUserInfo';
 import IPersonalInfo from './Types/IPersonalInfo';
 import IReturnInfoInterface from './Types/IReturnInfoInterface';
 import IUserInformationInterface from './Types/IUserInformationInterface';
@@ -32,6 +35,56 @@ export class UserInformationService {
         })
 
         return username;
+    }
+
+    checkIfCanHideFieldValue = (key: string): boolean => key === FirstPrivacyOptions.EVERYONE;
+
+    setNullToTheProfileInfoKey = (key: string, userInfo: IUserInformationInterface): IUserInformationInterface => {
+        userInfo[key] = null;
+
+        return userInfo;
+    };
+
+    updateEmailAndPhoneValues = (userInformation: IUserInformationInterface, userPrivacy: PrivacyInterface): IUserInformationInterface => {
+        const { emailAddress, phoneNumber } = userPrivacy;
+        const { id, ...userProfileData } = userInformation;
+
+        const dataWithEmail = this.checkIfCanHideFieldValue(emailAddress) ? userProfileData : this.setNullToTheProfileInfoKey('email', userProfileData);
+
+        const dataWithPhoneNumber = this.checkIfCanHideFieldValue(phoneNumber) ? dataWithEmail : this.setNullToTheProfileInfoKey('phone', dataWithEmail);
+
+        return dataWithPhoneNumber;
+    }
+
+    modifyUserProfileDataDependsOfTheUserPrivacySettings = (userInformation: IUserInformationInterface, userPrivacy: PrivacyInterface) => {
+        const dataWithEmailAndPhoneNumberValidated = this.updateEmailAndPhoneValues(userInformation, userPrivacy);
+
+        return dataWithEmailAndPhoneNumberValidated;
+    }
+
+    getOtherUserInfo = async ({ username }: IGetOtherUserInfo) => {
+        const userProfileData = await UserData.findOne({
+            relations: ['userInformation', 'userPrivacy'],
+            where: {
+                username
+            }
+        });
+
+        if (!userProfileData)
+            return {
+                isSuccess: false
+            }
+
+        const { userInformation, userPrivacy } = userProfileData;
+
+        const modifiedUserProfileData = this.modifyUserProfileDataDependsOfTheUserPrivacySettings(userInformation, userPrivacy);
+
+        const validateUserInfo = this.validateUserInfo(modifiedUserProfileData);
+
+        return {
+            isSuccess: true,
+            userData: validateUserInfo
+        }
     }
 
     setDefaultInformation = async (name: string, lastname: string): Promise<UserInformation> => {

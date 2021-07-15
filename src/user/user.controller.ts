@@ -15,6 +15,7 @@ import IUpdateUserInformation from './dto/IUpdateUserInformation';
 import IUsername from './Types/IUsername';
 import IPassword from './Types/IPassword';
 import IDeactivateData from './Types/IDeactivateData';
+import IGetOtherUserInfo from 'src/user-information/Types/IGetOtherUserInfo';
 
 @Controller('user')
 export class UserController {
@@ -77,6 +78,14 @@ export class UserController {
         @UserObj() user: UserData
     ) {
         return this.userInformationService.getAccountInfo(user);
+    }
+
+    @Get('/profile')
+    @UseGuards(AuthGuard('jwt'))
+    GetOtherUserInfo(
+        @Body() username: IGetOtherUserInfo
+    ) {
+        return this.userInformationService.getOtherUserInfo(username);
     }
 
     @Get('/information')
