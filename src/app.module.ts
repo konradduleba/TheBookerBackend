@@ -9,6 +9,9 @@ import { PrivacyService } from './privacy/privacy.service';
 import { PrivacyController } from './privacy/privacy.controller';
 import { PrivacyModule } from './privacy/privacy.module';
 import { UserInformationModule } from './user-information/user-information.module';
+import { FriendListController } from './friend-list/friend-list.controller';
+import { FriendListService } from './friend-list/friend-list.service';
+import { FriendListModule } from './friend-list/friend-list.module';
 
 @Module({
   imports: [
@@ -17,9 +20,10 @@ import { UserInformationModule } from './user-information/user-information.modul
     AuthModule,
     UserSettingsModule,
     PrivacyModule,
-    UserInformationModule
+    UserInformationModule,
+    FriendListModule
   ],
-  controllers: [AppController, PrivacyController],
-  providers: [AppService, PrivacyService],
+  controllers: [AppController, PrivacyController, FriendListController],
+  providers: [AppService, PrivacyService, FriendListService],
 })
 export class AppModule { }

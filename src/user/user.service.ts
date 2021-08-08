@@ -1,4 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { FriendInvites } from 'src/friend-list/friend-invites.entity';
+import { FriendList } from 'src/friend-list/friend-list.entity';
 import { PrivacyService } from 'src/privacy/privacy.service';
 import { UserInformationService } from 'src/user-information/user-information.service';
 import UserRole from 'src/user-settings/enums/UserRole.enum';
@@ -64,14 +66,34 @@ export class UserService {
     appendDefaultDataToTheNewUser = async ({ email, pwd, lastname, name }: UserRegistration): Promise<UserData> => {
         const newUser = new UserData();
 
+        const newUsername = await this.createUsernameForNewUser(name, lastname);
+
         newUser.email = email;
-        newUser.username = await this.createUsernameForNewUser(name, lastname);
+        newUser.username = newUsername
         newUser.pwdHash = hashPwd(pwd);
         newUser.userSettings = await this.checkIfRoleIsAvaible(UserRole.USER);
         newUser.userPrivacy = await this.privacyService.setDefaultPrivacySettings();
         newUser.userInformation = await this.userInformationService.setDefaultInformation(name, lastname);
 
         newUser.save();
+
+        const newUserInAvaibleFriendList = new FriendList();
+
+        newUserInAvaibleFriendList.name = name;
+        newUserInAvaibleFriendList.lastname = lastname;
+        newUserInAvaibleFriendList.picture = "https://i.pinimg.com/564x/5c/a1/42/5ca142d34fd1903773b4f4e6f43d9045.jpg";
+        newUserInAvaibleFriendList.username = newUsername;
+
+        newUserInAvaibleFriendList.save();
+
+        const newUserInFriendInvites = new FriendInvites();
+
+        newUserInFriendInvites.name = name;
+        newUserInFriendInvites.lastname = lastname;
+        newUserInFriendInvites.picture = "https://i.pinimg.com/564x/5c/a1/42/5ca142d34fd1903773b4f4e6f43d9045.jpg";
+        newUserInFriendInvites.username = newUsername;
+
+        newUserInFriendInvites.save();
 
         return newUser;
     }

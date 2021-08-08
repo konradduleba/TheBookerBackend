@@ -1,7 +1,9 @@
+import { FriendInvites } from "src/friend-list/friend-invites.entity";
+import { FriendList } from "src/friend-list/friend-list.entity";
 import { Privacy } from "src/privacy/privacy.entity";
 import { UserInformation } from "src/user-information/user-information.entity";
 import { UserSettings } from "src/user-settings/userSettings.entity";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import UserDataInterface from "./dto/UserDataInterface.dto";
 
 @Entity()
@@ -48,4 +50,12 @@ export class UserData extends BaseEntity implements UserDataInterface {
     @OneToOne(type => UserInformation)
     @JoinColumn()
     userInformation: UserInformation
+
+    @ManyToMany(type => FriendList, entity => entity.users)
+    @JoinTable()
+    friendList: FriendList[]
+
+    @ManyToMany(type => FriendInvites, entity => entity.users)
+    @JoinTable()
+    friendInvites: FriendList[]
 }

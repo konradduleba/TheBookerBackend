@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Patch, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Patch, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthLoginDto } from 'src/auth/dto/AuthLoginDto.dto';
@@ -16,6 +16,8 @@ import IUsername from './Types/IUsername';
 import IPassword from './Types/IPassword';
 import IDeactivateData from './Types/IDeactivateData';
 import IGetOtherUserInfo from 'src/user-information/Types/IGetOtherUserInfo';
+import { FriendListService } from 'src/friend-list/friend-list.service';
+import INewFriend from 'src/friend-list/Types/INewFriend';
 
 @Controller('user')
 export class UserController {
@@ -24,6 +26,7 @@ export class UserController {
         @Inject(PrivacyService) private privacyService: PrivacyService,
         @Inject(UserInformationService) private userInformationService: UserInformationService,
         @Inject(AuthService) private authService: AuthService,
+        @Inject(FriendListService) private friendListService: FriendListService
     ) { }
 
     @Post('/register')
@@ -55,6 +58,57 @@ export class UserController {
         return this.userService.getUserData(user);
     }
 
+    @Post('/invite')
+    @UseGuards(AuthGuard('jwt'))
+    InviteUserToTheFriendList(
+        @UserObj() user: UserData,
+        @Body() username: INewFriend
+    ) {
+        return this.friendListService.inviteUserToTheFriendList(user, username);
+    }
+
+    @Get('/invite-list')
+    @UseGuards(AuthGuard('jwt'))
+    GetUserInviteList(
+        @UserObj() user: UserData
+    ) {
+        return this.friendListService.getInviteList(user);
+    }
+
+    @Get('/friend-list')
+    @UseGuards(AuthGuard('jwt'))
+    GetUserFriendList(
+        @UserObj() user: UserData
+    ) {
+        return this.friendListService.getFriendList(user);
+    }
+
+    @Post('/user-friend-list')
+    @UseGuards(AuthGuard('jwt'))
+    GetFriendListByUsername(
+        @Body() username: INewFriend
+    ) {
+        return this.friendListService.getFriendListByUsername(username);
+    }
+
+    @Post('/new-friend')
+    @UseGuards(AuthGuard('jwt'))
+    AddNewFriend(
+        @UserObj() user: UserData,
+        @Body() username: INewFriend
+    ) {
+        return this.friendListService.addNewFriend(user, username);
+    }
+
+    @Delete('/friend')
+    @UseGuards(AuthGuard('jwt'))
+    RemoveUserFromFriendList(
+        @UserObj() user: UserData,
+        @Body() username: INewFriend
+    ) {
+        return this.friendListService.removeUserFromFriendList(user, username);
+    }
+
     @Get('/privacy')
     @UseGuards(AuthGuard('jwt'))
     GetUserPrivacySettings(
@@ -80,7 +134,7 @@ export class UserController {
         return this.userInformationService.getAccountInfo(user);
     }
 
-    @Get('/profile')
+    @Post('/profile')
     @UseGuards(AuthGuard('jwt'))
     GetOtherUserInfo(
         @Body() username: IGetOtherUserInfo
