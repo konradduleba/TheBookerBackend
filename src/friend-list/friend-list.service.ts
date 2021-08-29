@@ -33,6 +33,17 @@ export class FriendListService {
         return friendList;
     }
 
+    getInviteListByUsername = async ({ username }: INewFriend) => {
+        const { friendInvites } = await UserData.findOne({
+            relations: ['friendInvites'],
+            where: {
+                username
+            }
+        })
+
+        return friendInvites;
+    }
+
     getFriendList = async ({ id }: UserData): Promise<IFriendList[]> => {
         const { friendList } = await UserData.findOne({
             relations: ['friendList'],
@@ -125,7 +136,19 @@ export class FriendListService {
             friendUserId
         }
 
+        const actualUserIdFromFriendList = await this.getFriendId(userData.username);
+
+        const friendId = await this.getUserIdByUsername(username);
+
+        const secondValues = {
+            id: friendId.id,
+            friendUserId: actualUserIdFromFriendList
+        }
+
+        console.log(values, secondValues);
+
         this.deleteUserFromSelectedTable('user_data_friend_list_friend_list', whereSyntax, values);
+        this.deleteUserFromSelectedTable('user_data_friend_list_friend_list', whereSyntax, secondValues);
 
         return {
             isSuccess: true,
@@ -228,5 +251,35 @@ export class FriendListService {
             isSuccess: true,
             message: 'Invite sended'
         };
+    }
+
+    deleteUserFromInviteList = async (userData: UserData, { username }: INewFriend) => {
+        const { id } = userData;
+
+        const inviteUserId = await this.getInviteFriendId(username);
+
+        const userInviteList = await this.getInviteList(userData);
+
+        const result = userInviteList.find(singleInvite => singleInvite.username === username);
+
+        if (!result)
+            return {
+                isSuccess: false,
+                message: 'This user is not anymore on your invite list'
+            }
+
+        const whereSyntax = 'userDataId = :id AND friendInvitesId = :inviteUserId';
+
+        const values = {
+            id,
+            inviteUserId
+        }
+
+        this.deleteUserFromSelectedTable('user_data_friend_invites_friend_invites', whereSyntax, values);
+
+        return {
+            isSuccess: true,
+            message: 'User have been deleted'
+        }
     }
 }

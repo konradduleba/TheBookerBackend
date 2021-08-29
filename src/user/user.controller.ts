@@ -75,6 +75,15 @@ export class UserController {
         return this.friendListService.getInviteList(user);
     }
 
+    @Delete('/invite')
+    @UseGuards(AuthGuard('jwt'))
+    RemoveUserFromInviteList(
+        @UserObj() user: UserData,
+        @Body() username: INewFriend
+    ) {
+        return this.friendListService.deleteUserFromInviteList(user, username);
+    }
+
     @Get('/friend-list')
     @UseGuards(AuthGuard('jwt'))
     GetUserFriendList(
@@ -137,9 +146,10 @@ export class UserController {
     @Post('/profile')
     @UseGuards(AuthGuard('jwt'))
     GetOtherUserInfo(
+        @UserObj() user: UserData,
         @Body() username: IGetOtherUserInfo
     ) {
-        return this.userInformationService.getOtherUserInfo(username);
+        return this.userInformationService.getOtherUserInfo(username, user);
     }
 
     @Get('/information')

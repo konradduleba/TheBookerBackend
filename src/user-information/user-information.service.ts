@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { FriendListService } from 'src/friend-list/friend-list.service';
 import { FirstPrivacyOptions } from 'src/privacy/Enums/PrivacyOptions.enum';
 import PrivacyInterface from 'src/privacy/Types/IPrivacyInteface';
 import { UserData } from 'src/user/userData.entity';
@@ -15,6 +16,10 @@ import { UserInformation } from './user-information.entity';
 
 @Injectable()
 export class UserInformationService {
+    constructor(
+        @Inject(FriendListService) private friendList: FriendListService
+    ) { }
+
     getUserInfo = async (currentTokenId: string): Promise<IUserInformationInterface> => {
         const { userInformation } = await UserData.findOne({
             relations: ['userInformation'],
@@ -62,7 +67,23 @@ export class UserInformationService {
         return dataWithEmailAndPhoneNumberValidated;
     }
 
-    getOtherUserInfo = async ({ username }: IGetOtherUserInfo) => {
+    checkIfThisUserContainsInTheFriendList = async (currentUserData: UserData, username: string): Promise<boolean> => {
+        const friendList = await this.friendList.getFriendListByUsername({ username: currentUserData.username });
+
+        const doesContain = !!friendList.find(singleFriend => singleFriend.username === username);
+
+        return doesContain;
+    }
+
+    getInviteStatus = async (currentUserData: UserData, username: string): Promise<boolean> => {
+        const inviteList = await this.friendList.getInviteListByUsername({ username });
+
+        const doesContain = !!inviteList.find(singleInvite => singleInvite.username === currentUserData.username);
+
+        return doesContain;
+    }
+
+    getOtherUserInfo = async ({ username }: IGetOtherUserInfo, currentUserData: UserData) => {
         const userProfileData = await UserData.findOne({
             relations: ['userInformation', 'userPrivacy'],
             where: {
@@ -81,9 +102,20 @@ export class UserInformationService {
 
         const validateUserInfo = this.validateUserInfo(modifiedUserProfileData);
 
+        const doesUserContainInFriendList = await this.checkIfThisUserContainsInTheFriendList(currentUserData, username);
+
+        const isThatMyProfile = currentUserData.username === username;
+
+        const inviteStatus = await this.getInviteStatus(currentUserData, username);
+
         return {
             isSuccess: true,
-            userData: validateUserInfo
+            userData: {
+                ...validateUserInfo,
+                isOnFriendList: doesUserContainInFriendList,
+                isThatMyProfile,
+                inviteStatus
+            }
         }
     }
 
@@ -176,7 +208,7 @@ export class UserInformationService {
 
     getValidatedUserInformation = async ({ currentTokenId }: UserData) => {
         const userInfo = await this.getUserInfo(currentTokenId);
-        const validateUserInfo = this.validateUserInfo(userInfo)
+        const validateUserInfo = this.validateUserInfo(userInfo);
 
         return {
             isSuccess: true,
