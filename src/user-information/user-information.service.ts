@@ -83,6 +83,15 @@ export class UserInformationService {
         return doesContain;
     }
 
+    getMutualFriendNumber = async (currentUserData: UserData, username: string): Promise<number> => {
+        const currentUserFriendList = await this.friendList.getFriendListByUsername({ username: currentUserData.username });
+        const otherUserFriendList = await this.friendList.getFriendListByUsername({ username });
+
+        const sameElementsArray = currentUserFriendList.filter(currentFriend => otherUserFriendList.some(({ username }) => username === currentFriend.username));
+
+        return sameElementsArray.length;
+    }
+
     getOtherUserInfo = async ({ username }: IGetOtherUserInfo, currentUserData: UserData) => {
         const userProfileData = await UserData.findOne({
             relations: ['userInformation', 'userPrivacy'],
@@ -108,13 +117,16 @@ export class UserInformationService {
 
         const inviteStatus = await this.getInviteStatus(currentUserData, username);
 
+        const mutualFriendsNumber = await this.getMutualFriendNumber(currentUserData, username);
+
         return {
             isSuccess: true,
             userData: {
                 ...validateUserInfo,
                 isOnFriendList: doesUserContainInFriendList,
                 isThatMyProfile,
-                inviteStatus
+                inviteStatus,
+                mutualFriendsNumber
             }
         }
     }
