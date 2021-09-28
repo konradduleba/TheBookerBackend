@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FriendListService } from 'src/friend-list/friend-list.service';
 import { FirstPrivacyOptions } from 'src/privacy/Enums/PrivacyOptions.enum';
+import { PrivacyService } from 'src/privacy/privacy.service';
 import PrivacyInterface from 'src/privacy/Types/IPrivacyInteface';
 import { UserData } from 'src/user/userData.entity';
 import IAccountInfo from './Types/IAccountInfo';
@@ -17,7 +18,8 @@ import { UserInformation } from './user-information.entity';
 @Injectable()
 export class UserInformationService {
     constructor(
-        @Inject(FriendListService) private friendList: FriendListService
+        @Inject(FriendListService) private friendList: FriendListService,
+        @Inject(PrivacyService) private privacyService: PrivacyService,
     ) { }
 
     getUserInfo = async (currentTokenId: string): Promise<IUserInformationInterface> => {
@@ -50,19 +52,18 @@ export class UserInformationService {
         return userInfo;
     };
 
-    updateEmailAndPhoneValues = (userInformation: IUserInformationInterface, userPrivacy: PrivacyInterface): IUserInformationInterface => {
-        const { emailAddress, phoneNumber } = userPrivacy;
+    updateEmailAndPhoneValues = async (userInformation: IUserInformationInterface, currentUserData: UserData, username: string): Promise<IUserInformationInterface> => {
         const { id, ...userProfileData } = userInformation;
 
-        const dataWithEmail = this.checkIfCanHideFieldValue(emailAddress) ? userProfileData : this.setNullToTheProfileInfoKey('email', userProfileData);
+        const dataWithEmail = await this.privacyService.checkIfUserHaveAccessToThisData(currentUserData, { username }, 'emailAddress') ? userProfileData : this.setNullToTheProfileInfoKey('email', userProfileData);
 
-        const dataWithPhoneNumber = this.checkIfCanHideFieldValue(phoneNumber) ? dataWithEmail : this.setNullToTheProfileInfoKey('phone', dataWithEmail);
+        const dataWithPhoneNumber = await this.privacyService.checkIfUserHaveAccessToThisData(currentUserData, { username }, 'phoneNumber') ? dataWithEmail : this.setNullToTheProfileInfoKey('phone', dataWithEmail);
 
         return dataWithPhoneNumber;
     }
 
-    modifyUserProfileDataDependsOfTheUserPrivacySettings = (userInformation: IUserInformationInterface, userPrivacy: PrivacyInterface) => {
-        const dataWithEmailAndPhoneNumberValidated = this.updateEmailAndPhoneValues(userInformation, userPrivacy);
+    modifyUserProfileDataDependsOfTheUserPrivacySettings = async (userInformation: IUserInformationInterface, currentUserData: UserData, username: string) => {
+        const dataWithEmailAndPhoneNumberValidated = await this.updateEmailAndPhoneValues(userInformation, currentUserData, username);
 
         return dataWithEmailAndPhoneNumberValidated;
     }
@@ -84,12 +85,23 @@ export class UserInformationService {
     }
 
     getMutualFriendNumber = async (currentUserData: UserData, username: string): Promise<number> => {
+        const doesHaveAccess = await this.privacyService.checkIfUserHaveAccessToThisData(currentUserData, { username }, 'friendList');
+
+        if (!doesHaveAccess)
+            return 0;
+
         const currentUserFriendList = await this.friendList.getFriendListByUsername({ username: currentUserData.username });
         const otherUserFriendList = await this.friendList.getFriendListByUsername({ username });
 
         const sameElementsArray = currentUserFriendList.filter(currentFriend => otherUserFriendList.some(({ username }) => username === currentFriend.username));
 
         return sameElementsArray.length;
+    }
+
+    checkIfCanSendFriendRequest = async (currentUserData: UserData, username: string): Promise<boolean> => {
+        const canSend = await this.privacyService.checkIfUserHaveAccessToThisData(currentUserData, { username }, 'friendRequest')
+
+        return canSend
     }
 
     getOtherUserInfo = async ({ username }: IGetOtherUserInfo, currentUserData: UserData) => {
@@ -107,7 +119,7 @@ export class UserInformationService {
 
         const { userInformation, userPrivacy } = userProfileData;
 
-        const modifiedUserProfileData = this.modifyUserProfileDataDependsOfTheUserPrivacySettings(userInformation, userPrivacy);
+        const modifiedUserProfileData = await this.modifyUserProfileDataDependsOfTheUserPrivacySettings(userInformation, currentUserData, username);
 
         const validateUserInfo = this.validateUserInfo(modifiedUserProfileData);
 
@@ -119,6 +131,8 @@ export class UserInformationService {
 
         const mutualFriendsNumber = await this.getMutualFriendNumber(currentUserData, username);
 
+        const canSendFriendRequest = await this.checkIfCanSendFriendRequest(currentUserData, username);
+
         return {
             isSuccess: true,
             userData: {
@@ -126,7 +140,8 @@ export class UserInformationService {
                 isOnFriendList: doesUserContainInFriendList,
                 isThatMyProfile,
                 inviteStatus,
-                mutualFriendsNumber
+                mutualFriendsNumber,
+                canSendFriendRequest
             }
         }
     }

@@ -94,10 +94,16 @@ export class UserController {
 
     @Post('/user-friend-list')
     @UseGuards(AuthGuard('jwt'))
-    GetFriendListByUsername(
+    async GetFriendListByUsername(
+        @UserObj() user: UserData,
         @Body() username: INewFriend
     ) {
-        return this.friendListService.getFriendListByUsername(username);
+        const doesHaveAccess = await this.privacyService.checkIfUserHaveAccessToThisData(user, username, 'friendList');
+
+        if (doesHaveAccess)
+            return this.friendListService.getFriendListByUsername(username);
+
+        return []
     }
 
     @Post('/new-friend')
