@@ -12,6 +12,9 @@ import { UserInformationModule } from './user-information/user-information.modul
 import { FriendListController } from './friend-list/friend-list.controller';
 import { FriendListService } from './friend-list/friend-list.service';
 import { FriendListModule } from './friend-list/friend-list.module';
+import { SearchController } from './search/search.controller';
+import { SearchService } from './search/search.service';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -21,9 +24,11 @@ import { FriendListModule } from './friend-list/friend-list.module';
     UserSettingsModule,
     PrivacyModule,
     UserInformationModule,
-    FriendListModule
+    FriendListModule,
+    SearchModule,
+    SearchModule
   ],
-  controllers: [AppController, PrivacyController, FriendListController],
-  providers: [AppService, PrivacyService, FriendListService],
+  controllers: [AppController, PrivacyController, FriendListController, SearchController],
+  providers: [AppService, PrivacyService, FriendListService, SearchService],
 })
 export class AppModule { }
