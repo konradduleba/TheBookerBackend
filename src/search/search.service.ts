@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserData } from 'src/user/userData.entity';
+import EPicturePath from 'src/utils/EPicturePath';
 import { EQueryType } from './Enums/EQueryType';
 import IModifiedData from './Types/IModifiedData';
 import ISearchContent from './Types/ISearchContent';
@@ -9,8 +10,10 @@ export class SearchService {
     modifyDataToDisplay = (array: UserData[]): IModifiedData[] => array.map(({ userInformation, username }) => {
         const { id, name, lastname, picture } = userInformation;
 
+        const picturePath = `${EPicturePath.PICTURE_PATH}${picture}`
+
         return {
-            id, name, lastname, picture, username
+            id, name, lastname, picture: picturePath, username
         }
     })
 

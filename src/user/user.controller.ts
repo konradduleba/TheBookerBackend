@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Patch, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Patch, Post, Res, UploadedFile, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthLoginDto } from 'src/auth/dto/AuthLoginDto.dto';
@@ -18,6 +18,23 @@ import IDeactivateData from './Types/IDeactivateData';
 import IGetOtherUserInfo from 'src/user-information/Types/IGetOtherUserInfo';
 import { FriendListService } from 'src/friend-list/friend-list.service';
 import INewFriend from 'src/friend-list/Types/INewFriend';
+import { UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer'
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+
+export const storage = {
+    storage: diskStorage({
+        destination: 'src/public/images',
+        filename: (req, file, cb) => {
+            const filename: string = uuidv4();
+            const extension: string = path.parse(file.originalname).ext;
+
+            cb(null, `${filename}${extension}`)
+        }
+    })
+}
 
 @Controller('user')
 export class UserController {
@@ -210,5 +227,31 @@ export class UserController {
         @Body() deactivateData: IDeactivateData,
     ) {
         return this.userService.deactivateUser(user, deactivateData);
+    }
+
+    @Post('/profile-picture')
+    @UseGuards(AuthGuard('jwt'))
+    @UseInterceptors(FileInterceptor('file', storage))
+    UpdateProfilePicture(
+        @UploadedFile() file,
+        @UserObj() user: UserData,
+    ) {
+        return this.userService.updateProfilePicture(user, file.filename);
+    }
+
+    @Get('/profile-picture')
+    @UseGuards(AuthGuard('jwt'))
+    GetProfilePicture(
+        @UserObj() user: UserData
+    ) {
+        return this.userInformationService.getProfilePicture(user)
+    }
+
+    @Delete('/profile-picture')
+    @UseGuards(AuthGuard('jwt'))
+    DeleteProfilePicture(
+        @UserObj() user: UserData
+    ) {
+        return this.userInformationService.deleteProfilePicture(user);
     }
 }

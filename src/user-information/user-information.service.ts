@@ -3,7 +3,9 @@ import { FriendListService } from 'src/friend-list/friend-list.service';
 import { FirstPrivacyOptions } from 'src/privacy/Enums/PrivacyOptions.enum';
 import { PrivacyService } from 'src/privacy/privacy.service';
 import PrivacyInterface from 'src/privacy/Types/IPrivacyInteface';
+import IUploadedFiles from 'src/user/Types/IUploadedFiles';
 import { UserData } from 'src/user/userData.entity';
+import EPicturePath from 'src/utils/EPicturePath';
 import IAccountInfo from './Types/IAccountInfo';
 import IBasicInfo from './Types/IBasicInfo';
 import IChangeUserInformationInterface from './Types/IChangeUserInformationInterface';
@@ -11,6 +13,7 @@ import IContactInfo from './Types/IContactInfo';
 import IGetOtherUserInfo from './Types/IGetOtherUserInfo';
 import IPersonalInfo from './Types/IPersonalInfo';
 import IReturnInfoInterface from './Types/IReturnInfoInterface';
+import IUpdateProfile from './Types/IUpdateProfile';
 import IUserInformationInterface from './Types/IUserInformationInterface';
 import IValidateUserInfoInterface from './Types/IValidateUserInfoInterface';
 import { UserInformation } from './user-information.entity';
@@ -151,7 +154,7 @@ export class UserInformationService {
 
         newDefaultInfo.name = name;
         newDefaultInfo.lastname = lastname;
-        newDefaultInfo.picture = "https://i.pinimg.com/564x/5c/a1/42/5ca142d34fd1903773b4f4e6f43d9045.jpg";
+        newDefaultInfo.picture = "default-picture.png";
 
         await newDefaultInfo.save();
 
@@ -180,10 +183,11 @@ export class UserInformationService {
     }
 
     accountInfo = ({ name, lastname, picture, memberSince, lastUpdate }: IUserInformationInterface): IAccountInfo => {
+        const picturePath = `${EPicturePath.PICTURE_PATH}${picture}`
         return {
             name,
             lastname,
-            picture,
+            picture: picturePath,
             memberSince,
             lastUpdate
         }
@@ -256,5 +260,30 @@ export class UserInformationService {
                 username
             }
         };
+    }
+
+    getProfilePicture = async ({ currentTokenId }: UserData) => {
+        const { userInformation } = await UserData.findOne({
+            where: {
+                currentTokenId
+            },
+            relations: ['userInformation']
+        })
+
+        const { picture } = userInformation;
+
+        return {
+            imagePath: `${EPicturePath.PICTURE_PATH}${picture}`
+        }
+    }
+
+    deleteProfilePicture = async (user: UserData) => {
+        const options = {
+            picture: 'default-picture.png'
+        }
+
+        const result = this.changeUserInformation({ user, options })
+
+        return result;
     }
 }

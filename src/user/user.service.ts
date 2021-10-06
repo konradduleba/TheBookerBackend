@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { FriendInvites } from 'src/friend-list/friend-invites.entity';
 import { FriendList } from 'src/friend-list/friend-list.entity';
 import { PrivacyService } from 'src/privacy/privacy.service';
+import { UserInformation } from 'src/user-information/user-information.entity';
 import { UserInformationService } from 'src/user-information/user-information.service';
 import UserRole from 'src/user-settings/enums/UserRole.enum';
 import { UserSettings } from 'src/user-settings/userSettings.entity';
@@ -81,7 +82,7 @@ export class UserService {
 
         newUserInAvaibleFriendList.name = name;
         newUserInAvaibleFriendList.lastname = lastname;
-        newUserInAvaibleFriendList.picture = "https://i.pinimg.com/564x/5c/a1/42/5ca142d34fd1903773b4f4e6f43d9045.jpg";
+        newUserInAvaibleFriendList.picture = "default-picture.png";
         newUserInAvaibleFriendList.username = newUsername;
 
         newUserInAvaibleFriendList.save();
@@ -90,7 +91,7 @@ export class UserService {
 
         newUserInFriendInvites.name = name;
         newUserInFriendInvites.lastname = lastname;
-        newUserInFriendInvites.picture = "https://i.pinimg.com/564x/5c/a1/42/5ca142d34fd1903773b4f4e6f43d9045.jpg";
+        newUserInFriendInvites.picture = "default-picture.png";
         newUserInFriendInvites.username = newUsername;
 
         newUserInFriendInvites.save();
@@ -269,5 +270,26 @@ export class UserService {
             isSuccess: true,
             affected
         };
+    }
+
+    updateProfilePicture = async ({ currentTokenId }: UserData, filename: string) => {
+        const { userInformation } = await UserData.findOne({
+            where: {
+                currentTokenId
+            },
+            relations: ['userInformation']
+        })
+
+        const result = await UserInformation.update(userInformation.id, {
+            picture: filename
+        })
+
+        if (result) {
+            const { raw } = result;
+
+            return {
+                isSuccess: !!raw.affectedRows
+            }
+        }
     }
 }
