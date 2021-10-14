@@ -55,7 +55,10 @@ export class AuthService {
       const token = await this.createToken(await this.generateToken(user));
 
       return res
-        .cookie('jwt', token.accessToken)
+        .cookie('jwt', token.accessToken, {
+          secure: true,
+          httpOnly: true,
+        })
         .json({ isSuccess: true });
     } catch (e) {
       return res.json({ error: e.message });
