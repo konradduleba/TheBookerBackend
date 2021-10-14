@@ -9,13 +9,13 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.enableCors({ credentials: true, origin: 'http://localhost:3001' });
+  app.enableCors({ credentials: true, origin: '*' });
   app.use(cookieParser());
 
   app.useStaticAssets(join(__dirname, '..', 'src/public/images'), {
     prefix: '/photo',
   });
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 8080);
 }
 bootstrap();

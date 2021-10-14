@@ -1,5 +1,6 @@
 import { FriendInvites } from "src/friend-list/friend-invites.entity";
 import { FriendList } from "src/friend-list/friend-list.entity";
+import { Groups } from "src/groups/groups.entity";
 import { Privacy } from "src/privacy/privacy.entity";
 import { UserInformation } from "src/user-information/user-information.entity";
 import { UserSettings } from "src/user-settings/userSettings.entity";
@@ -57,5 +58,9 @@ export class UserData extends BaseEntity implements UserDataInterface {
 
     @ManyToMany(type => FriendInvites, entity => entity.users)
     @JoinTable()
-    friendInvites: FriendList[]
+    friendInvites: FriendInvites[]
+
+    @ManyToMany(type => Groups, entity => entity.users)
+    @JoinTable()
+    groupList: Groups[]
 }

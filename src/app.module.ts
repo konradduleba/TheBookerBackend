@@ -15,6 +15,15 @@ import { FriendListModule } from './friend-list/friend-list.module';
 import { SearchController } from './search/search.controller';
 import { SearchService } from './search/search.service';
 import { SearchModule } from './search/search.module';
+import { GroupsController } from './groups/groups.controller';
+import { GroupsService } from './groups/groups.service';
+import { GroupsModule } from './groups/groups.module';
+import { GroupPostsController } from './group-posts/group-posts.controller';
+import { GroupPostsService } from './group-posts/group-posts.service';
+import { GroupPostsModule } from './group-posts/group-posts.module';
+import { PostCommentsController } from './post-comments/post-comments.controller';
+import { PostCommentsService } from './post-comments/post-comments.service';
+import { PostCommentsModule } from './post-comments/post-comments.module';
 
 @Module({
   imports: [
@@ -26,9 +35,12 @@ import { SearchModule } from './search/search.module';
     UserInformationModule,
     FriendListModule,
     SearchModule,
-    SearchModule
+    SearchModule,
+    GroupsModule,
+    GroupPostsModule,
+    PostCommentsModule
   ],
-  controllers: [AppController, PrivacyController, FriendListController, SearchController],
-  providers: [AppService, PrivacyService, FriendListService, SearchService],
+  controllers: [AppController, PrivacyController, FriendListController, SearchController, GroupsController, GroupPostsController, PostCommentsController],
+  providers: [AppService, PrivacyService, FriendListService, SearchService, GroupsService, GroupPostsService, PostCommentsService],
 })
 export class AppModule { }
