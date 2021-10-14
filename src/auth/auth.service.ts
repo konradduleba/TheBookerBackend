@@ -57,7 +57,6 @@ export class AuthService {
       return res
         .cookie('jwt', token.accessToken, {
           secure: false,
-          domain: 'localhost',
           httpOnly: true,
         })
         .json({ isSuccess: true });
