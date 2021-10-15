@@ -68,13 +68,12 @@ export class UserController {
     }
 
     @Get('/role')
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     GetUserData(
         @UserObj() user: UserData,
         @Res() res: Response
     ) {
-        return res.cookie
-        // return this.userService.getUserData(user);
+        return this.userService.getUserData(user);
     }
 
     @Post('/invite')
