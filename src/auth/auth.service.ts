@@ -59,7 +59,10 @@ export class AuthService {
           secure: true,
           httpOnly: true,
         })
-        .json({ isSuccess: true });
+        .json({
+          isSuccess: true,
+          cookie: token.accessToken
+        });
     } catch (e) {
       return res.json({ error: e.message });
     }
