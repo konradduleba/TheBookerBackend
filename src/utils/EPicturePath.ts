@@ -1,5 +1,5 @@
 const enum EPicturePath {
-    PICTURE_PATH = 'http://localhost:8080/public/'
+    PICTURE_PATH = 'https://friends-library-backend.herokuapp.com/public/'
 }
 
 export default EPicturePath;
