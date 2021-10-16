@@ -1,6 +1,8 @@
 import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { join } from 'path';
 import { AppService } from './app.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Controller()
 export class AppController {
@@ -12,8 +14,9 @@ export class AppController {
   }
 
   @Get('/public/:id')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(JwtAuthGuard)
   redirect(@Res() res, @Param('id') id) {
     return res.redirect(`/photo/${id}`);
+    // return res.sendFile(join(process.cwd(), `src/public/images/${id}`))
   }
 }

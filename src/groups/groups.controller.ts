@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Inject, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserObj } from 'src/decorators/userobj.decorator';
 import { UserData } from 'src/user/userData.entity';
 import { GroupsService } from './groups.service';
@@ -15,7 +16,7 @@ export class GroupsController {
     ) { }
 
     @Post('/create')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     async CreateGroup(
         @UserObj() user: UserData,
         @Body() options: ICreateGroup
@@ -31,7 +32,7 @@ export class GroupsController {
     }
 
     @Get('/info')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetGroupInfo(
         @UserObj() user: UserData,
         @Body() options: IGetAllFromSelectedGroup
@@ -40,7 +41,7 @@ export class GroupsController {
     }
 
     @Post('/join-to-group')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     JoinToGroup(
         @UserObj() user: UserData,
         @Body() options: IJoinToGroup,
@@ -49,7 +50,7 @@ export class GroupsController {
     }
 
     @Post('/leave-group')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     LeaveGroup(
         @UserObj() user: UserData,
         @Body() options: IJoinToGroup,
@@ -58,7 +59,7 @@ export class GroupsController {
     }
 
     @Get('/all')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     FindUsersGroups(
         @UserObj() user: UserData
     ) {
@@ -66,7 +67,7 @@ export class GroupsController {
     }
 
     @Get('/all-users-from-selected-group')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetAllUserFromSelectedGroup(
         @Body() options: IGetAllFromSelectedGroup
     ) {
@@ -74,7 +75,7 @@ export class GroupsController {
     }
 
     @Delete('/user-from-group')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     KickUserFromTheGroup(
         @UserObj() user: UserData,
         @Body() options: IKickUserFromTheGroup

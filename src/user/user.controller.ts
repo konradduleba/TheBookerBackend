@@ -23,6 +23,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 export const storage = {
     storage: diskStorage({
@@ -62,13 +64,16 @@ export class UserController {
     }
 
     @Get('/logout')
-    @UseGuards(AuthGuard('jwt'))
+    // @UseGuards(JwtAuthGuard)
+    @UseGuards(LocalAuthGuard)
     async logout(@UserObj() user: UserData, @Res() res: Response) {
         return this.authService.logout(user, res);
     }
 
     @Get('/role')
-    @UseGuards(AuthGuard('jwt'))
+    // @UseGuards(JwtAuthGuard)
+    // @UseGuards(LocalAuthGuard)
+    @UseGuards(JwtAuthGuard)
     GetUserData(
         @UserObj() user: UserData,
         @Res() res: Response
@@ -77,7 +82,7 @@ export class UserController {
     }
 
     @Post('/invite')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     InviteUserToTheFriendList(
         @UserObj() user: UserData,
         @Body() username: INewFriend
@@ -86,7 +91,7 @@ export class UserController {
     }
 
     @Get('/invite-list')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetUserInviteList(
         @UserObj() user: UserData
     ) {
@@ -94,7 +99,7 @@ export class UserController {
     }
 
     @Delete('/invite')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     RemoveUserFromInviteList(
         @UserObj() user: UserData,
         @Body() username: INewFriend
@@ -103,7 +108,8 @@ export class UserController {
     }
 
     @Get('/friend-list')
-    @UseGuards(AuthGuard('jwt'))
+    // @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard)
     GetUserFriendList(
         @UserObj() user: UserData
     ) {
@@ -111,7 +117,7 @@ export class UserController {
     }
 
     @Post('/user-friend-list')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     async GetFriendListByUsername(
         @UserObj() user: UserData,
         @Body() username: INewFriend
@@ -125,7 +131,7 @@ export class UserController {
     }
 
     @Post('/new-friend')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     AddNewFriend(
         @UserObj() user: UserData,
         @Body() username: INewFriend
@@ -134,7 +140,7 @@ export class UserController {
     }
 
     @Delete('/friend')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     RemoveUserFromFriendList(
         @UserObj() user: UserData,
         @Body() username: INewFriend
@@ -143,7 +149,7 @@ export class UserController {
     }
 
     @Get('/privacy')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetUserPrivacySettings(
         @UserObj() user: UserData
     ) {
@@ -151,7 +157,7 @@ export class UserController {
     }
 
     @Patch('/privacy')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     ChangeUserPrivacySettings(
         @UserObj() user: UserData,
         @Body() options: ChangePrivacyOptionsInterface
@@ -160,7 +166,7 @@ export class UserController {
     }
 
     @Get('/account-info')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetUserAccountInfo(
         @UserObj() user: UserData
     ) {
@@ -168,7 +174,7 @@ export class UserController {
     }
 
     @Post('/profile')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetOtherUserInfo(
         @UserObj() user: UserData,
         @Body() username: IGetOtherUserInfo
@@ -177,7 +183,7 @@ export class UserController {
     }
 
     @Get('/information')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetUserInformation(
         @UserObj() user: UserData
     ) {
@@ -185,7 +191,7 @@ export class UserController {
     }
 
     @Patch('/information')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     ChangeUserInformation(
         @UserObj() user: UserData,
         @Body() options: IUpdateUserInformation
@@ -195,7 +201,7 @@ export class UserController {
 
     //dodać rolę admina (guard)
     @Patch('/user-role')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     ChangeUserRole(
         @UserObj() user: UserData,
         @Body() role: InputUserRole,
@@ -204,7 +210,7 @@ export class UserController {
     }
 
     @Patch('/username')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     ChangeUsername(
         @UserObj() user: UserData,
         @Body() username: IUsername,
@@ -213,7 +219,7 @@ export class UserController {
     }
 
     @Patch('/password')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     ChangePassword(
         @UserObj() user: UserData,
         @Body() password: IPassword,
@@ -222,7 +228,7 @@ export class UserController {
     }
 
     @Post('/deactivate')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     DeactivateUser(
         @UserObj() user: UserData,
         @Body() deactivateData: IDeactivateData,
@@ -231,7 +237,7 @@ export class UserController {
     }
 
     @Post('/profile-picture')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file', storage))
     UpdateProfilePicture(
         @UploadedFile() file,
@@ -241,7 +247,7 @@ export class UserController {
     }
 
     @Get('/profile-picture')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetProfilePicture(
         @UserObj() user: UserData
     ) {
@@ -249,7 +255,7 @@ export class UserController {
     }
 
     @Delete('/profile-picture')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     DeleteProfilePicture(
         @UserObj() user: UserData
     ) {

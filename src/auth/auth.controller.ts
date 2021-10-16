@@ -5,6 +5,7 @@ import { AuthLoginDto } from './dto/AuthLoginDto.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserObj } from 'src/decorators/userobj.decorator';
 import { UserData } from 'src/user/userData.entity';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +21,7 @@ export class AuthController {
   }
 
   @Get('/logout')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   async logout(@UserObj() user: UserData, @Res() res: Response) {
     return this.authService.logout(user, res);
   }

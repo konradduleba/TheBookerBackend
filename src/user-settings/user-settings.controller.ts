@@ -1,5 +1,6 @@
 import { Body, Controller, Inject, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import AddUserRole from './dto/addUserRole.dts';
 import { UserSettingsService } from './user-settings.service';
 
@@ -10,7 +11,7 @@ export class UserSettingsController {
     ) { }
 
     @Post('/add-role')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     AddUserRole(
         @Body() userRole: AddUserRole
     ) {

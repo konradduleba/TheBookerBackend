@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Inject, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserObj } from 'src/decorators/userobj.decorator';
 import { UserData } from 'src/user/userData.entity';
 import { GroupPostsService } from './group-posts.service';
@@ -17,7 +18,7 @@ export class GroupPostsController {
     ) { }
 
     @Post('/create')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     CreatePost(
         @UserObj() user: UserData,
         @Body() options: ICreatePost,
@@ -26,7 +27,7 @@ export class GroupPostsController {
     }
 
     @Delete('/delete')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     DeletePost(
         @UserObj() user: UserData,
         @Body() options: IDeletePost
@@ -35,7 +36,7 @@ export class GroupPostsController {
     }
 
     @Patch('/edit')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     EditPost(
         @UserObj() user: UserData,
         @Body() options: IEditPost,
@@ -44,7 +45,7 @@ export class GroupPostsController {
     }
 
     @Post('/comment')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     CreateComment(
         @UserObj() user: UserData,
         @Body() options: IComment,
@@ -53,7 +54,7 @@ export class GroupPostsController {
     }
 
     @Patch('/comment')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     EditComment(
         @UserObj() user: UserData,
         @Body() options: IEditComment
@@ -62,7 +63,7 @@ export class GroupPostsController {
     }
 
     @Delete('/comment')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     DeleteComment(
         @UserObj() user: UserData,
         @Body() options: IDeleteComment

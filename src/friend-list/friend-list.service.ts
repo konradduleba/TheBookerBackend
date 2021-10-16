@@ -52,6 +52,8 @@ export class FriendListService {
             }
         })
 
+        console.log(friendList);
+
         return friendList;
     }
 

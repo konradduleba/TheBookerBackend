@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserObj } from 'src/decorators/userobj.decorator';
 import { UserData } from 'src/user/userData.entity';
 import { SearchService } from './search.service';
@@ -12,7 +13,7 @@ export class SearchController {
     ) { }
 
     @Post('/query')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     SearchQuery(
         @UserObj() user: UserData,
         @Body() content: ISearchContent
@@ -21,7 +22,7 @@ export class SearchController {
     }
 
     @Get('/random')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     GetRandomPeople(
         @UserObj() user: UserData,
     ) {
