@@ -36,7 +36,7 @@ export class AuthService {
     try {
       const user = await User.findOne({
         email: req.email,
-        pwdHash: hashPwd(req.pwd),
+        pwdHash: hashPwd(req.password),
       });
 
       if (!user) {
@@ -55,14 +55,7 @@ export class AuthService {
       const token = await this.createToken(await this.generateToken(user));
 
       return res
-        .cookie('jwt', token.accessToken, {
-          secure: true,
-          httpOnly: true,
-        })
-        .json({
-          isSuccess: true,
-          cookie: token.accessToken
-        });
+        .json(token.accessToken);
     } catch (e) {
       return res.json({ error: e.message });
     }
@@ -72,14 +65,6 @@ export class AuthService {
     try {
       user.currentTokenId = null;
       await user.save();
-      res.clearCookie(
-        'jwt',
-        {
-          secure: false,
-          domain: 'localhost',
-          httpOnly: true,
-        }
-      );
       return res.json({ ok: true });
     } catch (e) {
       return res.json({ error: e.message });
