@@ -10,7 +10,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // app.enableCors({ credentials: true, origin: 'http://localhost:3000' });
+  app.enableCors({ credentials: true, origin: ['http://localhost:3000', 'https://friends-library-ui.herokuapp.com'] });
   app.use(cors())
   // app.use(cookieParser());
 
