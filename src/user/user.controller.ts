@@ -64,10 +64,17 @@ export class UserController {
     }
 
     @Get('/logout')
-    // @UseGuards(JwtAuthGuard)
-    @UseGuards(LocalAuthGuard)
+    @UseGuards(JwtAuthGuard)
     async logout(@UserObj() user: UserData, @Res() res: Response) {
         return this.authService.logout(user, res);
+    }
+
+    @Get('/self')
+    @UseGuards(JwtAuthGuard)
+    GetSmallUserData(
+        @UserObj() user: UserData,
+    ) {
+        return this.userService.getSmallUserData(user)
     }
 
     @Get('/role')

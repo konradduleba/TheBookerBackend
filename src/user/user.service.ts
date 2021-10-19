@@ -6,6 +6,7 @@ import { UserInformation } from 'src/user-information/user-information.entity';
 import { UserInformationService } from 'src/user-information/user-information.service';
 import UserRole from 'src/user-settings/enums/UserRole.enum';
 import { UserSettings } from 'src/user-settings/userSettings.entity';
+import EPicturePath from 'src/utils/EPicturePath';
 import { hashPwd } from 'src/utils/hash-pwd';
 import InputUserRole from './dto/InputUserRole.dto';
 import UserRegistration from './dto/UserRegistration.dto';
@@ -290,6 +291,23 @@ export class UserService {
             return {
                 isSuccess: !!raw.affectedRows
             }
+        }
+    }
+
+    getSmallUserData = async ({ currentTokenId }: UserData) => {
+        const { userInformation } = await UserData.findOne({
+            where: {
+                currentTokenId
+            },
+            relations: ['userInformation']
+        })
+
+        const { name, picture } = userInformation;
+
+        return {
+            name,
+            picture: `${EPicturePath.PICTURE_PATH}${picture}`,
+            notificationNumber: 0
         }
     }
 }
