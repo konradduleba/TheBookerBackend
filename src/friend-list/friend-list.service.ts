@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserData } from 'src/user/userData.entity';
+import EPicturePath from 'src/utils/EPicturePath';
 import { getConnection } from 'typeorm';
 import { FriendInvites } from './friend-invites.entity';
 import { FriendList } from './friend-list.entity';
@@ -52,9 +53,12 @@ export class FriendListService {
             }
         })
 
-        console.log(friendList);
-
-        return friendList;
+        return friendList.map(singleFriend => {
+            return {
+                ...singleFriend,
+                picture: `${EPicturePath.PICTURE_PATH}${singleFriend.picture}`
+            }
+        });
     }
 
     getInviteList = async ({ id }: UserData): Promise<IFriendList[]> => {
