@@ -69,7 +69,12 @@ export class FriendListService {
             }
         })
 
-        return friendInvites;
+        return friendInvites.map(singleFriend => {
+            return {
+                ...singleFriend,
+                picture: `${EPicturePath.PICTURE_PATH}${singleFriend.picture}`
+            }
+        });
     }
 
     getInviteListById = async (id: string): Promise<IFriendList[]> => {
